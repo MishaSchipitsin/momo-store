@@ -57,7 +57,7 @@ build:
 release:
   stage: release
   needs:
-    - build-frontend-image-job
+    - build
   variables:
     GIT_STRATEGY: none
   image:

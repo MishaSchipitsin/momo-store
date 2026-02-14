@@ -63,7 +63,7 @@ release:
   cache: [ ]
   stage: release
   needs:
-    - build-backend-image-job
+    - build
   before_script:
     - crane auth login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
