@@ -1,6 +1,5 @@
 include:
   - template: Security/Secret-Detection.gitlab-ci.yml
-  - template: Security/Container-Scanning.gitlab-ci.yml
 
 variables:
   VERSION: 1.0.${CI_PIPELINE_ID}
@@ -54,14 +53,6 @@ build:
       --destination "${CI_REGISTRY_IMAGE}/momo-store-frontend:$CI_COMMIT_SHA"
       --build-arg VERSION=$VERSION
       --cache=true 
-
-container_scan:
-  variables:
-    GIT_STRATEGY: "clone"
-    CS_DOCKERFILE_PATH: "./frontend/Dockerfile"
-    CS_IMAGE: "${CI_REGISTRY_IMAGE}/momo-store-frontend:$CI_COMMIT_SHA"
-  needs: 
-  - build-frontend-image-job
 
 release:
   stage: release
