@@ -42,7 +42,7 @@ trivy-sca:
   rules:
     - if: $CI_COMMIT_BRANCH
 
-build-backend-image-job:
+build:
   stage: build
   image:
     name: gcr.io/kaniko-project/executor:v1.9.0-debug
@@ -55,7 +55,7 @@ build-backend-image-job:
       --build-arg VERSION=$VERSION
       --cache=true 
 
-container_scanning:
+container_scan:
   variables:
     GIT_STRATEGY: "clone"
     CS_DOCKERFILE_PATH: "./backend/Dockerfile"
@@ -63,7 +63,7 @@ container_scanning:
   needs: 
   - build-backend-image-job
 
-release-backend-image:
+release:
   variables:
     GIT_STRATEGY: none
   image:
