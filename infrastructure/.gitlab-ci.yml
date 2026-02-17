@@ -8,7 +8,7 @@ release-to-nexus:
   script:
     - cd infrastructure/momo-store-chart
     - helm package --dependency-update . --version ${CI_PIPELINE_ID}
-    - curl -u $NEXUS_USER:$NEXUS_PASS $NEXUS_HELM_REPO --upload-file *.tgz -v
+    - curl -L -u $NEXUS_USER:$NEXUS_PASS $NEXUS_HELM_REPO --upload-file *.tgz -v
 
 deploy-to-kubernetes:
   stage: deploy
