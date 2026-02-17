@@ -1,0 +1,7 @@
+apiVersion: v2
+name: frontend
+description: A Helm chart frontend app for K8s
+type: application
+version: 0.1.8
+appVersion: "1.0.2457445"
+

@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Chart.Name }}-datasources
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ .Values.name }}
+data:
+  datasources.yaml: |
+    apiVersion: 1
+    datasources:
+    - name: Prometheus
+      type: prometheus
+      url: http://{{ .Values.global.prometheusName }}:{{ .Values.global.prometheusPort }}
+      access: proxy
+      isDefault: true
+      jsonData:
+        timeInterval: 5s
+        queryTimeout: 60s

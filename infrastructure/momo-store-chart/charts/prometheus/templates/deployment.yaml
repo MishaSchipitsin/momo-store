@@ -1,0 +1,112 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "{{ .Chart.Name }}-{{ .Release.Name }}"
+  namespace: "{{ .Release.Namespace }}"
+  labels:
+    app: "{{ .Values.name }}"
+    app.kubernetes.io/name: momo-prometheus
+    app.kubernetes.io/instance: "{{ .Release.Name }}"
+    app.kubernetes.io/version: "{{ .Chart.AppVersion }}"
+    app.kubernetes.io/managed-by: "{{ .Release.Service }}"
+    helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    app.kubernetes.io/component: prometheus
+    app.kubernetes.io/part-of: momo-store 
+    env: test
+spec:
+  selector:
+    matchLabels:
+      app: "{{ .Values.name }}"
+  replicas: {{ .Values.replicas }}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: "{{ .Values.name }}"
+      annotations:
+        co.elastic.logs/enabled: "true"
+        co.elastic.logs/format: zap
+        co.elastic.logs/timezone: Europe/Moscow
+        co.elastic.logs/exclude_lines: skipping duplicate scrape target with identical labels;
+    spec:
+      serviceAccountName: prometheus-serviceaccount
+      securityContext: 
+        fsGroup: 65534  
+        runAsUser: 65534
+        runAsGroup: 65534
+      terminationGracePeriodSeconds: 90
+      restartPolicy: Always
+      volumes:
+      - name: timezone-moscow
+        hostPath:
+          path: /usr/share/zoneinfo/Europe/Moscow
+      - name: config
+        configMap:
+          name: prometheus-conf
+      - name: {{ .Release.Name }}-rules
+        configMap:
+          name: {{ .Release.Name }}-rules
+      - name: prometheus-data
+        persistentVolumeClaim:
+          claimName: prometheus-pvc
+      containers:
+      - name: "{{ .Values.name }}"
+        image: prom/prometheus:v2.47.0  
+        securityContext:  
+          runAsUser: 65534
+          runAsGroup: 65534
+          runAsNonRoot: true
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+        args:
+          - --config.file=/etc/prometheus/prometheus.yml
+          - --web.enable-lifecycle
+          - --log.level=debug
+          - --storage.tsdb.path=/prometheus/
+          - --storage.tsdb.retention.time=15d
+          - --web.console.libraries=/etc/prometheus/console_libraries
+          - --web.console.templates=/etc/prometheus/consoles
+          - --storage.tsdb.allow-overlapping-blocks  
+          - --web.enable-admin-api 
+        ports:
+          - containerPort: {{ .Values.port }}
+            name: http
+        volumeMounts:
+        {{- $releaseName := .Release.Name -}}
+        {{- range $path, $bytes := .Files.Glob "rules/**" }}
+        {{- $name := base $path }}
+        - name: {{ $releaseName }}-rules
+          mountPath: /config/{{ $name }}
+          subPath: {{ $name }}
+        {{- end }}
+        - name: timezone-moscow
+          mountPath: /etc/localtime
+          readOnly: true
+        - name: config
+          mountPath: /etc/prometheus/
+          readOnly: true
+        - name: prometheus-data
+          mountPath: /prometheus/
+        resources:
+          requests:
+            cpu: {{ .Values.resources.requests.cpu | default "100m" }}
+            memory: {{ .Values.resources.requests.memory | default "256Mi" }}
+          limits:
+            cpu: {{ .Values.resources.limits.cpu }}
+            memory: {{ .Values.resources.limits.memory }}
+        livenessProbe:
+          httpGet:
+            path: /-/healthy
+            port: http
+          initialDelaySeconds: 30
+          timeoutSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /-/ready
+            port: http
+          initialDelaySeconds: 5
+          timeoutSeconds: 10
