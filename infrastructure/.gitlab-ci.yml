@@ -30,6 +30,8 @@ deploy-to-kubernetes:
         export FRONTEND_VERSION=${CI_PIPELINE_ID}
         echo "FIRST DEPLOYMENT - using versions: backend=$BACKEND_VERSION, frontend=$FRONTEND_VERSION"
       fi
+    - echo "BACKEND_VERSION='$BACKEND_VERSION'"
+    - echo "FRONTEND_VERSION='$FRONTEND_VERSION'"
     - cd infrastructure/momo-store-chart
     - helm upgrade --dependency-update --install --atomic --timeout 15m -n momo-store momo-store . --set backend.image.tag=$BACKEND_VERSION --set frontend.image.tag=$FRONTEND_VERSION --set grafana.adminPassword=$GRAFANA_ADM_PWD
     - rm ~/.kube/config
