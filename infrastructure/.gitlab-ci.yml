@@ -31,6 +31,6 @@ deploy-to-kubernetes:
         echo "FIRST DEPLOYMENT - using versions: backend=$BACKEND_VERSION, frontend=$FRONTEND_VERSION"
       fi
     - cd infrastructure/momo-store-chart
-    - helm upgrade --dependency-update --install --atomic -n momo-store momo-store . --set backend.image.tag=$BACKEND_VERSION --set frontend.image.tag=$FRONTEND_VERSION --set grafana.adminPassword=$GRAFANA_ADM_PWD
+    - helm upgrade --dependency-update --install --atomic --timeout 15m -n momo-store momo-store . --set backend.image.tag=$BACKEND_VERSION --set frontend.image.tag=$FRONTEND_VERSION --set grafana.adminPassword=$GRAFANA_ADM_PWD
     - rm ~/.kube/config
   when: manual
