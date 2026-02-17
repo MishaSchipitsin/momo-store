@@ -106,7 +106,7 @@ grafana:
 
 ingress:
   name: momo-ingress
-  app_fqdn: "std-043-28-momo-store.mooo.com"
+  app_fqdn: "158.160.141.146.nip.io"
 
 
 ingress-nginx:
