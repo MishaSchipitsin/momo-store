@@ -240,3 +240,8 @@ variables:
 
 ## 📊 Мониторинг отсутсвует, по выше указанным причинам 
 
+
+Полезные ссылки
+Gitlab: https://gitlab.praktikum-services.ru/std-043-28/momo-store.git
+Production: https://158.160.141.146.nip.io
+Helm Registry: http://nexus.praktikum-services.tech/repository/momo-std-043-28/
